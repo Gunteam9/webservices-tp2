@@ -1,0 +1,29 @@
+= Premier Web-service
+
+
+Nous voulons gérer une plate-forme de vidéos.
+
+* Un utilisateur doit s'inscrire (nom, mot de passe) pour pouvoir déposer des vidéos, créer des playlists, supprimer des playlists, ajouter une vidéo à une playlist, supprimer une vidéo d'une playlist.
+
+* Chaque utilisateur peut déposer des vidéos (url, description, titre) sur cette plate-forme à partir du moment où il est authentifié (nom et mot de passe vont être requis pour chaque requête). Ces vidéos deviennent disponibles pour tout le monde.
+
+* Seuls les utilisateurs inscrits peuvent composer et gérer des playlists. Une playlist peut contenir des vidéos de toute origine (pas nécessaire que l'utilisateur en soit le propriétaire).
+
+* Un utilisateur inscrit peut récupérer l'intégralité de son profil et uniquement de son profil (son nom, ses playlists et toutes les vidéos qu'il a posté).
+
+* Un utilisateur inscrit peut récupérer l'intégralité de ses playlists (uniquement les siennes)
+
+* Un utilisateur inscrit peut récupérer l'intégralité de ses vidéos postées (uniquement les siennes)
+
+
+
+Questions :
+
+* Proposez des URIs pour votre web-services qui permettront de couvrir les différentes fonctionnalités
+
+
+* Après validation de vos URIs, vous devez mettre en place le web-service :
+
+** Créez votre application Springboot comme vu en cours
+** Développez à l'intérieur un modèle (sans cryptographie) offrant toutes les intéractions requises (créer un compte, s'authentifier, ajouter une vidéo, ...)
+** Créez votre contrôleur REST en injectant le modèle (comme vu pour l'exercice 2 Motus).
