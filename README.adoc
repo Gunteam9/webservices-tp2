@@ -27,3 +27,18 @@ Questions :
 ** Créez votre application Springboot comme vu en cours
 ** Développez à l'intérieur un modèle (sans cryptographie) offrant toutes les intéractions requises (créer un compte, s'authentifier, ajouter une vidéo, ...)
 ** Créez votre contrôleur REST en injectant le modèle (comme vu pour l'exercice 2 Motus).
+
+|===
+|/URI|Methode|Utilité
+
+|/login|POST|Se connecter
+|/register|POST|S'incrire
+|/video|GET|Liste de toutes les vidéos
+|/playlist|GET|Voir toutes les playlist
+|/user/{id}|GET|Détail de l'utilisateur
+|/user/{id}/video|GET|Voir toutes ses vidéos
+|/user/{id}/video|POST|Déposer une vidéo
+|/user/{id}/playlist|GET|Voir toutes ses playlist
+|/user/{id}/playlist/{id}|POST|Editer une de ses playlist
+|/user/{id}/playlist/{id}|DELETE|Supprimer toutes ses playlist
+|===
