@@ -55,10 +55,13 @@ public class ControllerRest {
 	
 	@PostMapping("/login")
 	public ResponseEntity<User> login(@RequestHeader String name, @RequestHeader String password) {
+		User user;
 		try {
-			User user = userFacade.login(name, password);
+			user = userFacade.login(name, password);
 			return ResponseEntity.status(HttpStatus.CREATED).header("id", String.valueOf(user.getId())).build();
-		} catch (UnknownUserException | BadPasswordException e) {
+		} catch (UnknownUserException e) {
+			return new ResponseEntity("Unknown user", HttpStatus.NOT_FOUND);
+		} catch (BadPasswordException e) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		}
 	}
@@ -78,7 +81,7 @@ public class ControllerRest {
 		try {
 			return ResponseEntity.ok(userFacade.getUser(name));
 		} catch (UnknownUserException e) {
-			return ResponseEntity.notFound().build();
+			return new ResponseEntity("Unknown user", HttpStatus.NOT_FOUND);
 		}
 	}
 	
@@ -88,7 +91,7 @@ public class ControllerRest {
 			User user = userFacade.getUser(name);
 			return ResponseEntity.ok(videoFacade.getVideos().stream().filter(o -> o.getUserId() == user.getId()).collect(Collectors.toList()));
 		} catch (UnknownUserException e) {
-			return ResponseEntity.notFound().build();
+			return new ResponseEntity("Unknown user", HttpStatus.NOT_FOUND);
 		}
 	}
 	
@@ -96,10 +99,12 @@ public class ControllerRest {
 	public ResponseEntity<String> changeUserVideo(@PathVariable String name, @RequestBody Video video) {
 		try {
 			User user = userFacade.getUser(name);
-			videoFacade.addVideo(user.getId(), video.getUrl(), video.getTitle(), video.getDescription());
-			return ResponseEntity.accepted().build();
+			long videoId = videoFacade.addVideo(user.getId(), video.getUrl(), video.getTitle(), video.getDescription());
+			return ResponseEntity.created(new URI("user/" + name + "/video/" + videoId)).build();
 		} catch (UnknownUserException e) {
-			return ResponseEntity.notFound().build();
+			return new ResponseEntity<String>("Unknown user", HttpStatus.NOT_FOUND);
+		} catch (URISyntaxException e) {
+			return new ResponseEntity<String>("Unknown playlist", HttpStatus.NOT_FOUND);
 		}
 	}
 	
@@ -109,20 +114,20 @@ public class ControllerRest {
 			User user = userFacade.getUser(name);
 			return ResponseEntity.ok(playlistFacade.getPlaylist().stream().filter(o -> o.getUserId() == user.getId()).collect(Collectors.toList()));
 		} catch (UnknownUserException e) {
-			return ResponseEntity.notFound().build();
+			return new ResponseEntity("Unknown user", HttpStatus.NOT_FOUND);
 		}
 	}
 	
 	@PostMapping("user/{name}/playlist/new/{playlistName}")
-	public ResponseEntity<Collection<Playlist>> getPlaylist(@PathVariable String name, @PathVariable String playlistName) {
+	public ResponseEntity<String> getPlaylist(@PathVariable String name, @PathVariable String playlistName) {
 		try {
 			User user = userFacade.getUser(name);
 			long createdPlaylistId = playlistFacade.createPlaylist(user.getId(), playlistName);
 			return ResponseEntity.created(new URI("user/" + name + "/playlist/" + createdPlaylistId)).build();
 		} catch (UnknownUserException e) {
-			return ResponseEntity.notFound().build();
+			return new ResponseEntity<String>("Unknown user", HttpStatus.NOT_FOUND);
 		} catch (URISyntaxException e) {
-			return ResponseEntity.badRequest().build();
+			return new ResponseEntity<String>("Bad request \nError during URI creation", HttpStatus.BAD_REQUEST);
 		}
 	}
 	
@@ -133,9 +138,9 @@ public class ControllerRest {
 			playlistFacade.setVideo(id, playlist.getVideos());
 			return ResponseEntity.accepted().build();
 		} catch (UnknownUserException e) {
-			return ResponseEntity.notFound().build();
+			return new ResponseEntity<String>("Unknown user", HttpStatus.NOT_FOUND);
 		} catch (UnknownPlaylistException e) {
-			return ResponseEntity.notFound().build();
+			return new ResponseEntity<String>("Unknown playlist", HttpStatus.NOT_FOUND);
 		}
 	}
 	
@@ -146,9 +151,9 @@ public class ControllerRest {
 			playlistFacade.deletePlaylist(id);
 			return ResponseEntity.accepted().build();
 		} catch (UnknownPlaylistException e) {
-			return ResponseEntity.notFound().build();
+			return new ResponseEntity<String>("Unknown playlist", HttpStatus.NOT_FOUND);
 		} catch (UnknownUserException e) {
-			return ResponseEntity.notFound().build();
+			return new ResponseEntity<String>("Unknown user", HttpStatus.NOT_FOUND);
 		}
 	}
 }

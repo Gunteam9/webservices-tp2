@@ -50,6 +50,7 @@ Accept: application/xml
 //Create a new playlist
 POST http://localhost:8080/user/test/playlist/new/testPlaylist
 Content-Type: application/xml
+Accept: application/json
 
 ###
 
