@@ -1,4 +1,4 @@
-package exceptions;
+package v1.exceptions;
 
 public class UnknownUserException extends Exception {
 

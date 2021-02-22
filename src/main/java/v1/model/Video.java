@@ -1,8 +1,8 @@
-package model;
+package v1.model;
 
 import java.net.URL;
 
-import utils.Utils;
+import v1.utils.Utils;
 
 public class Video {
 	
@@ -13,6 +13,10 @@ public class Video {
 	private String title;
 	private String description;
 
+	public Video() {
+	
+	}
+	
 	public Video(long id, long userId, URL url, String titre, String description) {
 		super();
 		this.id = id;
@@ -35,6 +39,10 @@ public class Video {
 		return id;
 	}
 
+	public void setId(long id) {
+		this.id = id;
+	}
+
 	public long getUserId() {
 		return userId;
 	}
@@ -51,12 +59,12 @@ public class Video {
 		this.url = url;
 	}
 
-	public String getTitre() {
+	public String getTitle() {
 		return title;
 	}
 
-	public void setTitre(String titre) {
-		this.title = titre;
+	public void setTitle(String title) {
+		this.title = title;
 	}
 
 	public String getDescription() {
@@ -66,5 +74,7 @@ public class Video {
 	public void setDescription(String description) {
 		this.description = description;
 	}
+
+
 
 }

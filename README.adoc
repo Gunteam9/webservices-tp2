@@ -35,10 +35,11 @@ Questions :
 |/register|POST|S'incrire
 |/video|GET|Liste de toutes les vidéos
 |/playlist|GET|Voir toutes les playlist
-|/user/{id}|GET|Détail de l'utilisateur
-|/user/{id}/video|GET|Voir toutes ses vidéos
-|/user/{id}/video|POST|Déposer une vidéo
-|/user/{id}/playlist|GET|Voir toutes ses playlist
-|/user/{id}/playlist/{id}|POST|Editer une de ses playlist
-|/user/{id}/playlist/{id}|DELETE|Supprimer toutes ses playlist
+|/user/{name}|GET|Détail de l'utilisateur
+|/user/{name}/video|GET|Voir toutes ses vidéos
+|/user/{name}/video|POST|Déposer une vidéo
+|/user/{name}/playlist|GET|Voir toutes ses playlist
+|/user/{name}/playlist/new/{playlistName}|POST|Créer une nouvelle playlist
+|/user/{name}/playlist/{id}|PUT|Editer une de ses playlist
+|/user/{name}/playlist/{id}|DELETE|Supprimer une playlist
 |===

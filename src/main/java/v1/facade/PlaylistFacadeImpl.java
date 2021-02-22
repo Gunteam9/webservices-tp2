@@ -1,17 +1,21 @@
-package facade;
+package v1.facade;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import exceptions.UnknownPlaylistException;
-import model.Playlist;
-import model.Video;
+import org.springframework.stereotype.Component;
 
+import v1.exceptions.UnknownPlaylistException;
+import v1.model.Playlist;
+import v1.model.Video;
+
+@Component("PlaylistFacade")
 public class PlaylistFacadeImpl implements PlaylistFacade {
 
+	private long playlistId;
 	private Map<Long, Playlist> playlists;
 	
 	public PlaylistFacadeImpl() {
@@ -20,7 +24,7 @@ public class PlaylistFacadeImpl implements PlaylistFacade {
 	
 	@Override
 	public long createPlaylist(long userId, String name) {
-		Playlist p = new Playlist(playlists.size(), userId, name, new ArrayList<Video>());
+		Playlist p = new Playlist(playlistId++, userId, name, new ArrayList<Video>());
 		playlists.put(p.getId(), p);
 		return p.getId();
 	}
@@ -45,6 +49,13 @@ public class PlaylistFacadeImpl implements PlaylistFacade {
 			throw new UnknownPlaylistException();
 		playlists.get(id).setVideos(List.of(video));
 	}
+	
+	@Override
+	public void setVideo(long id, List<Video> videos) throws UnknownPlaylistException {
+		if (!playlists.containsKey(id))
+			throw new UnknownPlaylistException();
+		playlists.get(id).setVideos(videos);
+	}
 
 	@Override
 	public void deleteVideo(long id, Video... videos) throws UnknownPlaylistException {
@@ -59,6 +70,11 @@ public class PlaylistFacadeImpl implements PlaylistFacade {
 			throw new UnknownPlaylistException();
 		
 		return playlists.get(id);
+	}
+	
+	@Override
+	public Collection<Playlist> getPlaylist() {
+		return playlists.values();
 	}
 
 }

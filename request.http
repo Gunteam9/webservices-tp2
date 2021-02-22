@@ -1,0 +1,74 @@
+// Create an account
+POST http://localhost:8080/register
+name: test
+password: test
+
+###
+
+// Login
+POST http://localhost:8080/login
+name: test
+password: test
+
+###
+
+//Get all videos
+GET http://localhost:8080/video
+Accept: application/xml
+###
+
+//Get user details
+GET http://localhost:8080/user/test
+Accept: application/xml
+
+###
+
+//Get user's videos
+GET http://localhost:8080/user/test/video
+Accept: application/xml
+
+###
+
+//Add a video
+POST http://localhost:8080/user/test/video
+
+<video>
+    <url>https://www.youtube.com/watch?v=10h15BIygNI</url>
+    <title>Examen Web service </title>
+    <description>Debrief du sujet d’entraînement à l'examen de Webservices
+</description>
+</video>
+
+###
+
+//Get user's playlists
+GET http://localhost:8080/user/test/playlist
+Accept: application/xml
+
+###
+
+//Create a new playlist
+POST http://localhost:8080/user/test/playlist/new/testPlaylist
+Content-Type: application/xml
+
+###
+
+//Modify a playlist
+PUT http://localhost:8080/user/test/playlist/0
+Content-Type: application/xml
+
+<playlist>
+    <videos>
+        <video>
+            <url>https://www.youtube.com/watch?v=_WzAA_HyP6c</url>
+            <title>Installer Java FX </title>
+            <description>Tuto JFx - Installer et configurer JavaFX sous IntelliJ - génération d'un projet par Archetype Maven
+</description>
+        </video>
+    </videos>
+</playlist>
+
+###
+
+//Delete playlist
+DELETE http://localhost:8080/user/test/playlist/0

@@ -1,4 +1,4 @@
-package model;
+package v1.model;
 
 public class User {
 	
@@ -21,12 +21,12 @@ public class User {
 		this.id = id;
 	}
 
-	public String getNom() {
+	public String getName() {
 		return name;
 	}
 
-	public void setNom(String nom) {
-		this.name = nom;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public String getPassword() {
