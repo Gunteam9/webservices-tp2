@@ -5,8 +5,10 @@ import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,14 +17,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import v1.exceptions.BadPasswordException;
-import v1.exceptions.NameAlreadyUseException;
-import v1.exceptions.UnknownPlaylistException;
-import v1.exceptions.UnknownUserException;
+import v1.exceptions.BadUriException;
 import v1.facade.PlaylistFacade;
 import v1.facade.UserFacade;
 import v1.facade.VideoFacade;
@@ -42,27 +40,36 @@ public class ControllerRest {
 	
 	@Autowired
 	PlaylistFacade playlistFacade;
+	
+	@Autowired
+	AppProperties appProperties;
+	
 
 	@PostMapping("/register")
-	public ResponseEntity<String> register(@RequestHeader String name, @RequestHeader String password) {
+	public ResponseEntity<User> register(@RequestBody User user, HttpServletRequest request) {
 		try {
-			User user = userFacade.register(name, password);
-			return ResponseEntity.status(HttpStatus.CREATED).body("Name: " + String.valueOf(user.getName()));
-		} catch (NameAlreadyUseException e) {
-			return ResponseEntity.status(HttpStatus.CONFLICT).build();
+			user = userFacade.register(user.getName(), user.getPassword());
+						
+			HttpHeaders responseHeader = new HttpHeaders();
+			responseHeader.setLocation(new URI("http://" + request.getRemoteHost() + "/user/" + user.getName()));
+			
+			return ResponseEntity.ok().headers(responseHeader).body(user);
+		} catch (URISyntaxException e) {
+			throw new BadUriException();
 		}
 	}
 	
 	@PostMapping("/login")
-	public ResponseEntity<User> login(@RequestHeader String name, @RequestHeader String password) {
-		User user;
+	public ResponseEntity<User> login(@RequestBody User user, HttpServletRequest request) {
 		try {
-			user = userFacade.login(name, password);
-			return ResponseEntity.status(HttpStatus.CREATED).header("id", String.valueOf(user.getId())).build();
-		} catch (UnknownUserException e) {
-			return new ResponseEntity("Unknown user", HttpStatus.NOT_FOUND);
-		} catch (BadPasswordException e) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+			user = userFacade.login(user.getName(), user.getPassword());
+			
+			HttpHeaders responseHeader = new HttpHeaders();
+			responseHeader.setLocation(new URI("http://" + request.getRemoteHost() + "/user/" + user.getName()));
+			
+			return ResponseEntity.ok().headers(responseHeader).body(user);
+		} catch (URISyntaxException e) {
+			throw new BadUriException();
 		}
 	}
 	
@@ -76,84 +83,54 @@ public class ControllerRest {
 		return ResponseEntity.ok(playlistFacade.getPlaylist());
 	}
 	
-	@GetMapping("/user/{name}")
+	@GetMapping("/user/{name:[a-zA-Z]+}")
 	public ResponseEntity<User> getUserDetails(@PathVariable String name) {
-		try {
-			return ResponseEntity.ok(userFacade.getUser(name));
-		} catch (UnknownUserException e) {
-			return new ResponseEntity("Unknown user", HttpStatus.NOT_FOUND);
-		}
+		return ResponseEntity.ok(userFacade.getUser(name));
 	}
 	
-	@GetMapping("user/{name}/video")
+	@GetMapping("user/{name:[a-zA-Z]+}/video")
 	public ResponseEntity<Collection<Video>> getUserVideo(@PathVariable String name) {
-		try {
-			User user = userFacade.getUser(name);
-			return ResponseEntity.ok(videoFacade.getVideos().stream().filter(o -> o.getUserId() == user.getId()).collect(Collectors.toList()));
-		} catch (UnknownUserException e) {
-			return new ResponseEntity("Unknown user", HttpStatus.NOT_FOUND);
-		}
+		User user = userFacade.getUser(name);
+		return ResponseEntity.ok(videoFacade.getVideos().stream().filter(o -> o.getUserId() == user.getId()).collect(Collectors.toList()));
 	}
 	
-	@PostMapping("user/{name}/video")
+	@PostMapping("user/{name:[a-zA-Z]+}/video")
 	public ResponseEntity<String> changeUserVideo(@PathVariable String name, @RequestBody Video video) {
 		try {
 			User user = userFacade.getUser(name);
 			long videoId = videoFacade.addVideo(user.getId(), video.getUrl(), video.getTitle(), video.getDescription());
 			return ResponseEntity.created(new URI("user/" + name + "/video/" + videoId)).build();
-		} catch (UnknownUserException e) {
-			return new ResponseEntity<String>("Unknown user", HttpStatus.NOT_FOUND);
 		} catch (URISyntaxException e) {
-			return new ResponseEntity<String>("Unknown playlist", HttpStatus.NOT_FOUND);
+			throw new BadUriException();
 		}
 	}
 	
-	@GetMapping("user/{name}/playlist")
+	@GetMapping("user/{name:[a-zA-Z]+}/playlist")
 	public ResponseEntity<Collection<Playlist>> getPlaylist(@PathVariable String name) {
-		try {
-			User user = userFacade.getUser(name);
-			return ResponseEntity.ok(playlistFacade.getPlaylist().stream().filter(o -> o.getUserId() == user.getId()).collect(Collectors.toList()));
-		} catch (UnknownUserException e) {
-			return new ResponseEntity("Unknown user", HttpStatus.NOT_FOUND);
-		}
+		User user = userFacade.getUser(name);
+		return ResponseEntity.ok(playlistFacade.getPlaylist().stream().filter(o -> o.getUserId() == user.getId()).collect(Collectors.toList()));
 	}
 	
-	@PostMapping("user/{name}/playlist/new/{playlistName}")
+	@PostMapping("user/{name:[a-zA-Z]+}/playlist/new/{playlistName}")
 	public ResponseEntity<String> getPlaylist(@PathVariable String name, @PathVariable String playlistName) {
 		try {
 			User user = userFacade.getUser(name);
 			long createdPlaylistId = playlistFacade.createPlaylist(user.getId(), playlistName);
 			return ResponseEntity.created(new URI("user/" + name + "/playlist/" + createdPlaylistId)).build();
-		} catch (UnknownUserException e) {
-			return new ResponseEntity<String>("Unknown user", HttpStatus.NOT_FOUND);
 		} catch (URISyntaxException e) {
-			return new ResponseEntity<String>("Bad request \nError during URI creation", HttpStatus.BAD_REQUEST);
+			throw new BadUriException();
 		}
 	}
 	
-	@PutMapping("user/{name}/playlist/{id}")
+	@PutMapping("user/{name:[a-zA-Z]+}/playlist/{id}")
 	public ResponseEntity<String> changeUserPlaylist(@PathVariable String name, @PathVariable long id, @RequestBody Playlist playlist) {
-		try {
-			User user = userFacade.getUser(name);
-			playlistFacade.setVideo(id, playlist.getVideos());
-			return ResponseEntity.accepted().build();
-		} catch (UnknownUserException e) {
-			return new ResponseEntity<String>("Unknown user", HttpStatus.NOT_FOUND);
-		} catch (UnknownPlaylistException e) {
-			return new ResponseEntity<String>("Unknown playlist", HttpStatus.NOT_FOUND);
-		}
+		playlistFacade.setVideo(id, playlist.getVideos());
+		return ResponseEntity.accepted().build();
 	}
 	
-	@DeleteMapping("user/{name}/playlist/{id}")
+	@DeleteMapping("user/{name:[a-zA-Z]+}/playlist/{id}")
 	public ResponseEntity<String> deleteUserPlaylist(@PathVariable String name, @PathVariable long id) {
-		try {
-			User user = userFacade.getUser(name);
-			playlistFacade.deletePlaylist(id);
-			return ResponseEntity.accepted().build();
-		} catch (UnknownPlaylistException e) {
-			return new ResponseEntity<String>("Unknown playlist", HttpStatus.NOT_FOUND);
-		} catch (UnknownUserException e) {
-			return new ResponseEntity<String>("Unknown user", HttpStatus.NOT_FOUND);
-		}
+		playlistFacade.deletePlaylist(id);
+		return ResponseEntity.accepted().build();
 	}
 }
