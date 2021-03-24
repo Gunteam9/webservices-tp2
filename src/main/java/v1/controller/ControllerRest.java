@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -53,7 +54,7 @@ public class ControllerRest {
 			HttpHeaders responseHeader = new HttpHeaders();
 			responseHeader.setLocation(new URI("http://" + request.getRemoteHost() + "/user/" + user.getName()));
 			
-			return ResponseEntity.ok().headers(responseHeader).body(user);
+			return ResponseEntity.status(HttpStatus.CREATED).headers(responseHeader).body(user);
 		} catch (URISyntaxException e) {
 			throw new BadUriException();
 		}
@@ -95,11 +96,17 @@ public class ControllerRest {
 	}
 	
 	@PostMapping("user/{name:[a-zA-Z]+}/video")
-	public ResponseEntity<String> changeUserVideo(@PathVariable String name, @RequestBody Video video) {
+	public ResponseEntity<Collection<Video>> changeUserVideo(@PathVariable String name, @RequestBody Video video, HttpServletRequest request) {
 		try {
 			User user = userFacade.getUser(name);
 			long videoId = videoFacade.addVideo(user.getId(), video.getUrl(), video.getTitle(), video.getDescription());
-			return ResponseEntity.created(new URI("user/" + name + "/video/" + videoId)).build();
+			
+			HttpHeaders responseHeader = new HttpHeaders();
+			responseHeader.setLocation(new URI("http://" + request.getRemoteHost() + "/user/" + name + "/video/" + videoId));
+			
+			Collection<Video> userVideo = videoFacade.getVideos().stream().filter(o -> o.getUserId() == user.getId()).collect(Collectors.toList());
+			
+			return ResponseEntity.status(HttpStatus.CREATED).headers(responseHeader).body(userVideo);
 		} catch (URISyntaxException e) {
 			throw new BadUriException();
 		}
@@ -112,11 +119,17 @@ public class ControllerRest {
 	}
 	
 	@PostMapping("user/{name:[a-zA-Z]+}/playlist/new/{playlistName}")
-	public ResponseEntity<String> getPlaylist(@PathVariable String name, @PathVariable String playlistName) {
+	public ResponseEntity<Collection<Playlist>> getPlaylist(@PathVariable String name, @PathVariable String playlistName, HttpServletRequest request) {
 		try {
 			User user = userFacade.getUser(name);
 			long createdPlaylistId = playlistFacade.createPlaylist(user.getId(), playlistName);
-			return ResponseEntity.created(new URI("user/" + name + "/playlist/" + createdPlaylistId)).build();
+			
+			HttpHeaders responseHeader = new HttpHeaders();
+			responseHeader.setLocation(new URI("http://" + request.getRemoteHost() + "/user/" + name + "/playlist/" + createdPlaylistId));
+			
+			Collection<Playlist> userPlaylist = playlistFacade.getPlaylist().stream().filter(o -> o.getUserId() == user.getId()).collect(Collectors.toList());
+			
+			return ResponseEntity.status(HttpStatus.CREATED).headers(responseHeader).body(userPlaylist);
 		} catch (URISyntaxException e) {
 			throw new BadUriException();
 		}
