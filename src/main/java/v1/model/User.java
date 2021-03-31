@@ -5,6 +5,11 @@ public class User {
 	private long id;
 	private String name;
 	private String password;
+	private boolean admin = false;
+
+	public User() {
+		
+	}
 	
 	public User(long id, String nom, String password) {
 		super();
@@ -12,7 +17,15 @@ public class User {
 		this.name = nom;
 		this.password = password;
 	}
-
+	
+	public User(long id, String nom, String password, boolean isAdmin) {
+		super();
+		this.id = id;
+		this.name = nom;
+		this.password = password;
+		this.admin = isAdmin;
+	}
+	
 	public long getId() {
 		return id;
 	}
@@ -36,6 +49,14 @@ public class User {
 	public void setPassword(String password) {
 		this.password = password;
 	}
+
+	public boolean isAdmin() {
+		return admin;
+	}
 	
+	public void setAdmin(boolean isAdmin) {
+		this.admin = isAdmin;
+	}
+
 
 }

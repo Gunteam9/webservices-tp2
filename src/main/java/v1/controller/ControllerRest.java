@@ -2,6 +2,7 @@ package v1.controller;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.Principal;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -44,13 +45,12 @@ public class ControllerRest {
 	
 	@Autowired
 	AppProperties appProperties;
-	
 
 	@PostMapping("/register")
 	public ResponseEntity<User> register(@RequestBody User user, HttpServletRequest request) {
 		try {
 			user = userFacade.register(user.getName(), user.getPassword());
-						
+			
 			HttpHeaders responseHeader = new HttpHeaders();
 			responseHeader.setLocation(new URI("http://" + request.getRemoteHost() + "/user/" + user.getName()));
 			
@@ -60,19 +60,21 @@ public class ControllerRest {
 		}
 	}
 	
-	@PostMapping("/login")
-	public ResponseEntity<User> login(@RequestBody User user, HttpServletRequest request) {
-		try {
-			user = userFacade.login(user.getName(), user.getPassword());
-			
-			HttpHeaders responseHeader = new HttpHeaders();
-			responseHeader.setLocation(new URI("http://" + request.getRemoteHost() + "/user/" + user.getName()));
-			
-			return ResponseEntity.ok().headers(responseHeader).body(user);
-		} catch (URISyntaxException e) {
-			throw new BadUriException();
-		}
-	}
+	//Sans la sécurité
+	
+//	@PostMapping("/login")
+//	public ResponseEntity<User> login(Principal principal, @RequestBody User user, HttpServletRequest request) {
+//		try {
+//			user = userFacade.login(user.getName(), user.getPassword());
+//			
+//			HttpHeaders responseHeader = new HttpHeaders();
+//			responseHeader.setLocation(new URI("http://" + request.getRemoteHost() + "/user/" + user.getName()));
+//			
+//			return ResponseEntity.ok().headers(responseHeader).body(user);
+//		} catch (URISyntaxException e) {
+//			throw new BadUriException();
+//		}
+//	}
 	
 	@GetMapping("/video")
 	public ResponseEntity<Collection<Video>> getVideos() {

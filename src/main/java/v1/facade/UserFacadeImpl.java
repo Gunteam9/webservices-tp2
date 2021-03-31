@@ -18,13 +18,17 @@ public class UserFacadeImpl implements UserFacade {
 	
 	public UserFacadeImpl() {
 		registeredUsers = new HashMap<String, User>();
+		
+		User classic = register("test", "test");
+		User admin = register("admin", "admin");
+		admin.setAdmin(true);
 	}
 
 	@Override
 	public User register(String name, String password) throws NameAlreadyUseException {
 		if (registeredUsers.containsKey(name))
 			throw new NameAlreadyUseException();
-		User user = new User(userId, name, password);
+		User user = new User(userId++, name, password);
 		registeredUsers.put(name, user);
 		return user;
 	}

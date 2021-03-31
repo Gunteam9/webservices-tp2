@@ -2,6 +2,20 @@
 POST http://localhost:8080/register
 Accept: application/xml
 Content-Type: application/xml
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInJvbGVzIjpbIlJPTEVfQURNSU4iLCJST0xFX1VTRVIiXSwiZXhwIjoxNjE3MjA1MzczfQ.nsFca2XDa3EFVRdn4KOK_TkVLUGdWYT9oQfFb22zxkg
+
+<user>
+    <name>test2</name>
+    <password>test2</password>
+</user>
+
+###
+
+// Login
+// Sans sécurité
+POST http://localhost:8080/login
+Accept: application/xml
+Content-Type: application/xml
 
 <user>
     <name>test</name>
@@ -10,15 +24,15 @@ Content-Type: application/xml
 
 ###
 
-// Login
-POST http://localhost:8080/login
+// Avec sécurité (mode user)
+POST http://localhost:8080/login?username=test&password=test
 Accept: application/xml
-Content-Type: application/xml
 
-<user>
-    <name>test</name>
-    <password>tes</password>
-</user>
+###
+
+// Avec sécurité (mode admin)
+POST http://localhost:8080/login?username=admin&password=admin
+Accept: application/xml
 
 ###
 
@@ -44,6 +58,8 @@ Accept: application/xml
 POST http://localhost:8080/user/test/video
 Accept: application/xml
 Content-Type: application/xml
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0Iiwicm9sZXMiOlsiUk9MRV9VU0VSIl0sImV4cCI6MTYxNzIwNDg0NX0.uI0jJIq8oH6eECLICtABc02QGbqGzn0fmF-7UZnADqI
+
 
 <video>
     <url>https://www.youtube.com/watch?v=10h15BIygNI</url>
@@ -63,7 +79,7 @@ Accept: application/xml
 //Create a new playlist
 POST http://localhost:8080/user/test/playlist/new/testPlaylist
 Content-Type: application/xml
-Accept: application/json
+Accept: application/xml
 
 ###
 
